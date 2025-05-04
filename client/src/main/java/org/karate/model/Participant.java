@@ -1,7 +1,5 @@
 package org.karate.model;
 
-import org.karate.entity.ParticipantCategory;
-
 public class Participant {
     private Integer id;
     private String lastName;

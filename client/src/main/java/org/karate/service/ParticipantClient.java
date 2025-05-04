@@ -3,8 +3,13 @@ package org.karate.service;
 import org.karate.model.Participant;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 public class ParticipantClient {
@@ -33,11 +38,17 @@ public class ParticipantClient {
     }
 
     public List<Participant> searchParticipants(String query) {
-        return rest.exchange(
-                API_URL + "/search?name=" + query,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Participant>>() {}
-        ).getBody();
+        try {
+            return rest.exchange(
+                    API_URL + "/search?query=" + URLEncoder.encode(query, StandardCharsets.UTF_8),
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Participant>>() {}
+            ).getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            System.err.println("Ошибка при поиске: " + e.getStatusCode());
+            System.err.println("Ответ сервера: " + e.getResponseBodyAsString());
+            return Collections.emptyList();
+        }
     }
 }

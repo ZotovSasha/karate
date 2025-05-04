@@ -3,9 +3,11 @@ package org.karate.controller;
 import org.karate.entity.Participant;
 import org.karate.repository.ParticipantRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/participants")
@@ -54,7 +56,18 @@ public class ParticipantControll {
     }
 
     @GetMapping("/search")
-    public List<Participant> search(@RequestParam String name) {
-        return repository.findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(name, name);
+    public ResponseEntity<?> searchParticipants(@RequestParam String query) {
+        try {
+            ParticipantRepository participantRepository = null;
+            List<Participant> result = participantRepository
+                    .findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(query, query);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of(
+                            "message", "Ошибка при выполнении поиска",
+                            "error", e.getMessage()
+                    ));
+        }
     }
 }

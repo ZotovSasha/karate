@@ -1,11 +1,14 @@
 package org.karate.controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import org.karate.model.Participant;
 import org.karate.service.ParticipantClient;
+
+import java.util.List;
 
 public class ParticipantController {
     @FXML private TableView<Participant> participantTable;
@@ -24,11 +27,13 @@ public class ParticipantController {
 
     @FXML
     private void handleSearch() {
-        String query = searchField.getText();
+        String query = searchField.getText().trim();
         if (!query.isEmpty()) {
-            participantTable.setItems(FXCollections.observableArrayList(client.searchParticipants(query)));
-        } else {
-            refreshTable();
+            List<Participant> results = client.searchParticipants(query);
+            Platform.runLater(() -> {
+                participantTable.getItems().clear();
+                participantTable.getItems().addAll(results);
+            });
         }
     }
 

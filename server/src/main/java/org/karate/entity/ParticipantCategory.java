@@ -11,7 +11,7 @@ public class ParticipantCategory {
 
     private String age;
     private String wieght;
-    @Column(name = "gender", columnDefinition = "CHAR(1)")
+    @Column(name = "gender", columnDefinition = "bpchar(1)")
     private String gender;
 
 
