@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.karate.controller.ParticipantController"
+      spacing="10" style="-fx-padding: 10;">
+
+    <HBox spacing="10">
+        <TextField fx:id="searchField" promptText="Поиск по имени"
+                   onKeyReleased="#handleSearch"/>
+        <Button text="Добавить" onAction="#handleAddParticipant"/>
+        <Button text="Редактировать" onAction="#handleEditParticipant"/>
+        <Button text="Удалить" onAction="#handleDeleteParticipant"/>
+    </HBox>
+
+    <TableView fx:id="participantTable">
+        <columns>
+            <TableColumn text="ID" prefWidth="50">
+                <cellValueFactory><PropertyValueFactory property="id"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Фамилия" prefWidth="150">
+                <cellValueFactory><PropertyValueFactory property="lastName"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Имя" prefWidth="150">
+                <cellValueFactory><PropertyValueFactory property="firstName"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Регион" prefWidth="200">
+                <cellValueFactory><PropertyValueFactory property="region"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Категория" prefWidth="200">
+                <cellValueFactory><PropertyValueFactory property="category"/></cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+</VBox>
