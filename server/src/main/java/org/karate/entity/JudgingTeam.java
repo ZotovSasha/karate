@@ -8,13 +8,17 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
+@Table(name = "judging_team")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class JudgingTeam {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_judging_team", nullable = false)
     private Integer id;
 
-    @OneToMany(mappedBy = "judgingTeam")
+    @OneToMany(mappedBy = "judgingTeam", cascade = CascadeType.ALL)
     private List<Judge> judges;
 }
