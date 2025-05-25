@@ -29,6 +29,12 @@ public class ParticipantController {
                 .collect(Collectors.toList());
     }
 
+    @PostMapping("/generate-bracket/{categoryId}")
+    public Map<String, Object> generateBracket(@PathVariable Integer categoryId) {
+        return service.generateTournamentBracket(categoryId);
+    }
+
+    @PutMapping("/{id}")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipantDTO create(@RequestBody ParticipantDTO dto) {
@@ -36,12 +42,13 @@ public class ParticipantController {
         participant.setFirstName(dto.getFirstName());
         participant.setLastName(dto.getLastName());
         participant.setRegion(dto.getRegion());
-        // Category loading через сервис (проверка существования)
+        participant.setCategory(service.getCategoryById(dto.getCategoryId()));
         return ParticipantDTO.fromEntity(repository.save(participant));
     }
 
-    @PostMapping("/generate-bracket/{categoryId}")
-    public Map<String, Object> generateBracket(@PathVariable Integer categoryId) {
-        return service.generateTournamentBracket(categoryId);
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id) {
+        repository.deleteById(id);
     }
 }

@@ -27,4 +27,9 @@ public class CategoryController {
             @RequestParam String gender) {
         return repository.findByAgeAndGender(age, gender);
     }
+
+    public ParticipantCategory getCategoryById(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+    }
 }

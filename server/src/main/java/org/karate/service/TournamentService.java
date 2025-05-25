@@ -9,11 +9,13 @@ import java.util.*;
 public class TournamentService {
     private final ParticipantRepository participantRepository;
     private final KumiteRepository kumiteRepository;
+    private final ParticipantCategoryRepository categoryRepository;
 
     public TournamentService(ParticipantRepository participantRepository,
-                             KumiteRepository kumiteRepository) {
+                             KumiteRepository kumiteRepository, ParticipantCategoryRepository categoryRepository) {
         this.participantRepository = participantRepository;
         this.kumiteRepository = kumiteRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // Генерация турнирной сетки (уникальный алгоритм)
@@ -40,6 +42,11 @@ public class TournamentService {
                 "nextStep", "quarterfinals",
                 "generatedAt", new Date()
         );
+    }
+
+    public ParticipantCategory getCategoryById(Integer id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
     private void createParticipantKumite(Participant p, Kumite k, String side) {

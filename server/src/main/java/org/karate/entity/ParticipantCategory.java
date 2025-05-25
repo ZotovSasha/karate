@@ -18,7 +18,7 @@ public class ParticipantCategory {
 
     private String age;
 
-    @Column(name = "wieght") // Соответствие опечатке в БД
+    @Column(name = "wieght")
     private String weight;
 
     private String gender;

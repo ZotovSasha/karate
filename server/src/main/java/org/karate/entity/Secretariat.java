@@ -12,16 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Secretariat {
     @Id
-    @Column(name = "id_secretariat") // Соответствие первичному ключу
+    @Column(name = "id_secretariat")
     private Integer id;
 
-    @Column(name = "last_name")
     private String lastName;
-
-    @Column(name = "first_name")
     private String firstName;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_tatami") // Уже правильно
+    @JoinColumn(name = "fk_id_tatami")
     private Tatami tatami;
 }

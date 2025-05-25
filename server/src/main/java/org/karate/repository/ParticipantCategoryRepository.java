@@ -2,13 +2,16 @@ package org.karate.repository;
 
 import org.karate.entity.ParticipantCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public interface ParticipantCategoryRepository extends JpaRepository<ParticipantCategory, Integer> {
 
-    // Фильтрация по возрасту и полу
     List<ParticipantCategory> findByAgeAndGender(String age, String gender);
 
-    // Находит категории по весовой группе
-    List<ParticipantCategory> findByWeight(String weight);
+    @Override
+    @Nullable
+    Optional<ParticipantCategory> findById(@NonNull Integer id);
 }

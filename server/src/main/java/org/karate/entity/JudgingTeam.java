@@ -21,4 +21,7 @@ public class JudgingTeam {
 
     @OneToMany(mappedBy = "judgingTeam", cascade = CascadeType.ALL)
     private List<Judge> judges;
+    @OneToMany(mappedBy = "judgingTeam")
+    private List<SecretariatJudges> secretariatJudges;
+
 }
