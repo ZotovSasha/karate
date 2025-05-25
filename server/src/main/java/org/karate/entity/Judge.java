@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "judges") // Явное указание имени таблицы
+@Table(name = "judges")
 public class Judge {
     @Id
-    @Column(name = "id_judge") // Соответствие столбцу в БД
+    @Column(name = "id_judge")
     private Integer id;
 
-    @Column(name = "last_name") // Аннотация для соответствия snake_case
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "first_name")
@@ -25,6 +25,6 @@ public class Judge {
     private String judgeCategory;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_judging_team") // Соответствие внешнему ключу
+    @JoinColumn(name = "fk_id_judging_team")
     private JudgingTeam judgingTeam;
 }

@@ -32,4 +32,9 @@ public class CategoryController {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
     }
+
+    @GetMapping
+    public List<ParticipantCategory> getAll() {
+        return repository.findAll();
+    }
 }

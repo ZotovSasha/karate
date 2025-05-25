@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "secretariat_judges")
 @Data
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SecretariatJudges {
     @Id
-    @Column(name = "id_secretariat_judges") // Явное указание ID
+    @Column(name = "id_secretariat_judges")
     private Integer id;
 
     @ManyToOne

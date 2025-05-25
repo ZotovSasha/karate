@@ -35,7 +35,6 @@ public class ParticipantController {
     }
 
     @PutMapping("/{id}")
-    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipantDTO create(@RequestBody ParticipantDTO dto) {
         Participant participant = new Participant();
