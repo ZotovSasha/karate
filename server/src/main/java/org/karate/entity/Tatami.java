@@ -1,17 +1,17 @@
 package org.karate.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "tatami")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Tatami {
     @Id
-    @Column(name = "id_tatami")
-    private String id;
+    private String idTatami;
+
 }

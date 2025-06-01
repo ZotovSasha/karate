@@ -1,27 +1,27 @@
 package org.karate.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
-
+@Setter
+@Getter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "kumite")
 public class Kumite {
     @Id
-    @Column(name = "id_kumite")
-    private Integer id;
-
-    private String decisionJudges;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idKumite;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_secretariat_judges")
-    private SecretariatJudges secretariatJudges;
+    @JoinColumn(name = "tatami_id", nullable = false)
+    private Tatami tatami;
 
-    @OneToMany(mappedBy = "kumite")
-    private List<ParticipantKumite> participants;
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = false)
+    private JudgingTeam team;
+
+    @Enumerated(EnumType.STRING)
+    private Side winner;
+
 }

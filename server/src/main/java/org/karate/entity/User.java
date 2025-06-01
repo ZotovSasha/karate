@@ -7,14 +7,16 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "judging_team")
-public class JudgingTeam {
+@Table(name = "users")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idJudgingTeam;
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "tatami_id", nullable = false)
-    private Tatami tatami;
+    @Column(unique = true)
+    private String username;
+
+    private String password;
+    private String role;
 
 }

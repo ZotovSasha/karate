@@ -1,29 +1,23 @@
 package org.karate.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
-
+@Setter
+@Getter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "participant")
 public class Participant {
     @Id
-    @Column(name = "id_participant")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idParticipant;
 
     private String lastName;
     private String firstName;
-    private String region;
+    private String personalCode;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_participant_category")
+    @JoinColumn(name = "category_id", nullable = false)
     private ParticipantCategory category;
-
-    @OneToMany(mappedBy = "participant")
-    private List<ParticipantKumite> kumites;
 }

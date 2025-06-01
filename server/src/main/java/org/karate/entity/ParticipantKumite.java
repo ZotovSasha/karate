@@ -1,34 +1,29 @@
 package org.karate.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.Serializable;
-
-@Data
+@Setter
+@Getter
 @Entity
-@IdClass(ParticipantKumite.ParticipantKumiteId.class)
 @Table(name = "participant_kumite")
 public class ParticipantKumite {
-    @Id
+    // Геттеры и сеттеры
+    @EmbeddedId
+    private ParticipantKumiteId id;
+
     @ManyToOne
-    @JoinColumn(name = "id_participant")
+    @MapsId("participantId")
+    @JoinColumn(name = "participant_id")
     private Participant participant;
 
-    @Id
     @ManyToOne
-    @JoinColumn(name = "id_kumite")
+    @MapsId("kumiteId")
+    @JoinColumn(name = "kumite_id")
     private Kumite kumite;
 
-    private String side;
+    @Enumerated(EnumType.STRING)
+    private Side side;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ParticipantKumiteId implements Serializable {
-        private Integer participant;
-        private Integer kumite;
-    }
 }
