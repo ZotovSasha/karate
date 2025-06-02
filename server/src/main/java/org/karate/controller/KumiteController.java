@@ -2,6 +2,7 @@ package org.karate.controller;
 
 import org.karate.entity.Kumite;
 import org.karate.repository.KumiteRepository;
+import org.karate.service.KumiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,9 @@ import java.util.List;
 public class KumiteController {
     @Autowired
     private KumiteRepository kumiteRepository;
+
+    @Autowired
+    private KumiteService kumiteService;
 
     @GetMapping
     public List<Kumite> getAllKumites() {
@@ -27,5 +31,10 @@ public class KumiteController {
     public Kumite updateKumite(@PathVariable Integer id, @RequestBody Kumite kumite) {
         kumite.setIdKumite(id);
         return kumiteRepository.save(kumite);
+    }
+
+    @DeleteMapping("/{id}/delete-with-participants")
+    public void deleteKumiteAndParticipants(@PathVariable Integer id) {
+        kumiteService.deleteKumiteAndParticipants(id);
     }
 }

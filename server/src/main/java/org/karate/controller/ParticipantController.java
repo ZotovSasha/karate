@@ -15,7 +15,6 @@ public class ParticipantController {
     @Autowired
     private ParticipantRepository participantRepository;
 
-    // Добавьте репозиторий для категорий участников
     @Autowired
     private ParticipantCategoryRepository participantCategoryRepository;
 
@@ -28,14 +27,7 @@ public class ParticipantController {
     public List<Participant> getParticipantsByCategory(
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String search) {
-
-        if (categoryId != null) {
-            return participantRepository.findByCategoryId(categoryId);
-        }
-        if (search != null && !search.isEmpty()) {
-            return participantRepository.findByLastNameContainingIgnoreCase(search);
-        }
-        return participantRepository.findAll();
+        return participantRepository.findWithFilters(categoryId, search);
     }
 
     @GetMapping("/categories")
@@ -55,7 +47,8 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteParticipant(@PathVariable Integer id) {
-        participantRepository.deleteById(id);
+    public void deleteCategoryWithParticipants(@PathVariable Integer id) {
+        participantCategoryRepository.deleteParticipantsByCategoryId(id);
+        participantCategoryRepository.deleteById(id);
     }
 }
