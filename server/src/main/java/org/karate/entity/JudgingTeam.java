@@ -11,7 +11,7 @@ import lombok.Setter;
 public class JudgingTeam {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idJudgingTeam;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "tatami_id", nullable = false)

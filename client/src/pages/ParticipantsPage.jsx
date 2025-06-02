@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import ParticipantForm from '../components/ParticipantForm'
+import ParticipantList from '../components/ParticipantList.jsx'
 import { GiKarateBelts } from 'react-icons/gi'
 
 export default function ParticipantsPage() {
@@ -27,7 +27,7 @@ export default function ParticipantsPage() {
                     Participants Management
                 </h1>
 
-                <ParticipantForm
+                <ParticipantList
                     participant={editingParticipant}
                     onSuccess={() => {
                         setEditingParticipant(null)

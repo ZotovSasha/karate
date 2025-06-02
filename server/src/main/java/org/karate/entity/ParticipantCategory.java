@@ -11,7 +11,7 @@ import lombok.Setter;
 public class ParticipantCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idCategory;
+    private Integer id;
 
     private String ageGroup;
     private String weightGroup;

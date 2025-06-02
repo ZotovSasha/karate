@@ -11,7 +11,7 @@ import lombok.Setter;
 public class Participant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idParticipant;
+    private Integer id;
 
     private String lastName;
     private String firstName;
