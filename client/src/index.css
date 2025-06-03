@@ -1,19 +1,400 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+:root {
+    --primary-red: #b91c1c;
+    --dark-red: #991814;
+    --light-gray: #f3f4f6;
+    --white: #ffffff;
+    --text-gray: #374151;
+    --border-gray: #d1d5db;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --button-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #f3f4f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-gray);
+    color: var(--text-gray);
 }
 
 .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 20px;
+}
+
+/* Общие стили для кнопок */
+.btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+    border-radius: 4px;
+    user-select: none;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary {
+    color: var(--white);
+    background-color: var(--primary-red);
+    border-color: var(--primary-red);
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-red);
+    border-color: var(--dark-red);
+    box-shadow: var(--button-hover-shadow);
+}
+
+.btn-primary:active {
+    position: relative;
+    box-shadow: var(--button-hover-shadow);
+    transform: translateY(2px);
+}
+
+/* Анимация загрузки */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255);
+    border-radius: 50%;
+    border-top-color: var(--primary-red);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Сетка для списка участников */
+.participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Базовые стили для заголовков */
+header {
+    background: linear-gradient(to right, #991814, #b91c1c);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+nav {
+    padding: 12px;
+    background-color: #2f2e41;
+}
+
+nav a {
+    padding: 12px;
+    color: white;
+}
+
+.bg-karate-red {
+    background-color: #b91c1c;
+}
+
+/* Стили для таблицы и карточек */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Карточки */
+.card {
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.2s;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-gray);
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    gap: 0.5rem;
+}
+
+/* Стили для аватарок */
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-gray);
+}
+
+/* Страница участников */
+.participants-page {
+    padding-top: 2rem;
+}
+/* Страница судей */
+.judges-page {
+    padding-top: 2rem;
+}
+
+.judge-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+/* Страница боев */
+.kumites-page {
+    padding-top: 2rem;
+}
+
+.kumite-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+.kumite-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+/* Модальные окна */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* Анимированные элементы */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Свойства для мобильных устройств */
+@media (max-width: 767.98px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
+
+/* Свойства для футера */
+footer {
+    background-color: #1f2937;
+    color: white;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+}
+/* Свойство для отключения Tailwind по умолчанию */
+/* Предполагается, что вы закомментировали Tailwind в index.html */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-gray);
+    color: var(--text-gray);
+}
+
+/* Стили для баджей и счетчиков */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-progress {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-success {
+    background-color: #dcfce7;
+    color: #065f46;
+}
+
+/* Навигационные ссылки */
+NavLink {
+    text-decoration: none;
+    font-weight: 600;
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: #ffffff;
+    background: linear-gradient(to right, #991814, #b91c1c);
+}
+
+NavLink:hover {
+    background: linear-gradient(to right, #8a1313, #a91917);
+}
+
+NavLink.active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Свойство длЯ фильтрации */
+.filter-bar {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+/* Свойство длЯ заголовка превью */
+.preview-header {
+    background-color: #f1f5f9;
+    padding: 1rem;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Свойство длЯ логотипа и названия */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.app-logo-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(to right, #991814, #b91c1c);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.app-name {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.icon {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    position: relative;
+}
+
+.icon path, .icon circle, .icon rect, .icon polygon, .icon g, .icon svg {
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.icon:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.icon-active {
+    animation: pulse 1s infinite;
 }
