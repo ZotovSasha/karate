@@ -12,6 +12,9 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
         ]
     });
 
+    const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         if (kumite) {
             const formattedParticipants = kumite.participantAssociations?.map(p => ({
@@ -21,6 +24,18 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
                 { participantId: '', side: 'RED' },
                 { participantId: '', side: 'WHITE' }
             ];
+
+            // Убеждаемся, что у нас есть участник для каждой стороны
+            if (formattedParticipants.length === 1) {
+                const existingSide = formattedParticipants[0].side;
+                const missingSide = existingSide === 'RED' ? 'WHITE' : 'RED';
+                formattedParticipants.push({ participantId: '', side: missingSide });
+            } else if (formattedParticipants.length === 0) {
+                formattedParticipants.push(
+                    { participantId: '', side: 'RED' },
+                    { participantId: '', side: 'WHITE' }
+                );
+            }
 
             setFormData({
                 tatamiId: kumite.tatami?.idTatami || '',
@@ -34,6 +49,10 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Очищаем ошибку для этого поля
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
     };
 
     const handleParticipantChange = (index, e) => {
@@ -48,23 +67,69 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
             ...prev,
             participants: updatedParticipants
         }));
+
+        // Очищаем ошибку для участника
+        if (errors[`participant_${index}`]) {
+            setErrors(prev => ({ ...prev, [`participant_${index}`]: '' }));
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.tatamiId) {
+            newErrors.tatamiId = 'Выберите татами';
+        }
+
+        if (!formData.teamId) {
+            newErrors.teamId = 'Выберите судейскую бригаду';
+        }
+
+        formData.participants.forEach((participant, index) => {
+            if (!participant.participantId) {
+                newErrors[`participant_${index}`] = 'Выберите участника';
+            }
+        });
+
+        // Проверяем, что участники разные
+        const participantIds = formData.participants
+            .filter(p => p.participantId)
+            .map(p => p.participantId);
+
+        if (participantIds.length === 2 && participantIds[0] === participantIds[1]) {
+            newErrors.participants = 'Участники должны быть разными';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+
         try {
             const data = {
                 tatamiId: formData.tatamiId,
                 teamId: parseInt(formData.teamId),
                 winner: formData.winner,
-                participants: formData.participants.map(p => ({
-                    participantId: parseInt(p.participantId),
-                    side: p.side
-                }))
+                participants: formData.participants
+                    .filter(p => p.participantId) // Фильтруем пустых участников
+                    .map(p => ({
+                        participantId: parseInt(p.participantId),
+                        side: p.side
+                    }))
             };
 
-            if (kumite) {
-                await axios.put(`/api/kumites/${kumite.idKumite}`, data, {
+            const kumiteId = kumite?.id || kumite?.idKumite;
+
+            if (kumiteId) {
+                await axios.put(`/api/kumites/${kumiteId}`, data, {
                     headers: { 'X-Role': role }
                 });
             } else {
@@ -72,9 +137,13 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
                     headers: { 'X-Role': role }
                 });
             }
+
             onSave();
         } catch (error) {
             console.error('Error saving kumite:', error);
+            setErrors({ submit: 'Ошибка при сохранении боя' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -85,12 +154,26 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
                     <h3 className="text-lg font-bold">
                         {kumite ? 'Изменить бой' : 'Добавить новый бой'}
                     </h3>
+                    <button
+                        onClick={onClose}
+                        className="text-white hover:text-gray-200"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6">
+                    {errors.submit && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {errors.submit}
+                        </div>
+                    )}
+
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            <svg className="icon h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="inline h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                             Татами
@@ -99,7 +182,7 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
                             name="tatamiId"
                             value={formData.tatamiId}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-karate-red focus:border-karate-red"
+                            className={`w-full px-3 py-2 border rounded-md focus:ring-red-500 focus:border-red-500 ${errors.tatamiId ? 'border-red-500' : 'border-gray-300'}`}
                             required
                         >
                             <option value="">Выбрать татами</option>
@@ -109,6 +192,7 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
                                 </option>
                             ))}
                         </select>
+                        {errors.tatamiId && <p className="text-red-500 text-sm mt-1">{errors.tatamiId}</p>}
                     </div>
 
                     <div className="mb-4">

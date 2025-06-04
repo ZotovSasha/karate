@@ -18,22 +18,39 @@ public class KumiteController {
 
     @Autowired
     private KumiteService kumiteService;
+
     @GetMapping
-    public List<Kumite> getAllKumites() {
-        return kumiteService.getAllKumitesWithParticipants();
+    public ResponseEntity<List<Kumite>> getAllKumites(@RequestParam(required = false) String full) {
+        List<Kumite> kumites;
+        if ("true".equals(full)) {
+            kumites = kumiteService.getAllKumitesWithParticipants();
+        } else {
+            kumites = kumiteRepository.findAll();
+        }
+        return ResponseEntity.ok(kumites);
     }
 
     @PostMapping
     public ResponseEntity<Kumite> createKumite(@RequestBody KumiteDTO kumiteDTO) {
-        Kumite created = kumiteService.createKumiteWithParticipants(kumiteDTO);
-        return ResponseEntity.ok(created);
+        try {
+            Kumite created = kumiteService.createKumiteWithParticipants(kumiteDTO);
+            return ResponseEntity.ok(created);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Kumite> updateKumite(@PathVariable Integer id,
                                                @RequestBody KumiteDTO kumiteDTO) {
-        Kumite updated = kumiteService.updateKumiteWithParticipants(id, kumiteDTO);
-        return ResponseEntity.ok(updated);
+        try {
+            Kumite updated = kumiteService.updateKumiteWithParticipants(id, kumiteDTO);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -44,7 +61,13 @@ public class KumiteController {
     }
 
     @DeleteMapping("/{id}/delete-with-participants")
-    public void deleteKumiteAndParticipants(@PathVariable Integer id) {
-        kumiteService.deleteKumiteAndParticipants(id);
+    public ResponseEntity<Void> deleteKumiteAndParticipants(@PathVariable Integer id) {
+        try {
+            kumiteService.deleteKumiteAndParticipants(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

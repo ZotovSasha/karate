@@ -1,4 +1,3 @@
-// KumiteService.java
 package org.karate.service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class KumiteService {
@@ -35,7 +33,12 @@ public class KumiteService {
     @Transactional
     public void deleteKumiteAndParticipants(Integer id) {
         Kumite kumite = kumiteRepository.findById(id)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("Kumite not found"));
+
+        // Сначала удаляем связи с участниками
+        participantKumiteRepository.deleteByKumiteId(id);
+
+        // Затем удаляем сам бой
         kumiteRepository.delete(kumite);
     }
 
@@ -49,6 +52,10 @@ public class KumiteService {
     public Kumite updateKumiteWithParticipants(Integer id, KumiteDTO kumiteDTO) {
         Kumite kumite = kumiteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Kumite not found"));
+
+        // Удаляем старые связи с участниками перед обновлением
+        participantKumiteRepository.deleteByKumiteId(id);
+
         return saveKumiteWithParticipants(kumite, kumiteDTO);
     }
 
@@ -65,23 +72,31 @@ public class KumiteService {
         // Сохраняем кумите, чтобы получить ID (для новых записей)
         Kumite savedKumite = kumiteRepository.save(kumite);
 
-        // Удаляем старых участников
-        savedKumite.getParticipantAssociations().clear();
-
-        for (ParticipantDTO participantDTO : kumiteDTO.getParticipants()) {
-            Participant participant = participantRepository.findById(participantDTO.getParticipantId())
-                    .orElseThrow(() -> new EntityNotFoundException("Participant not found"));
-
-            ParticipantKumite participantKumite = new ParticipantKumite();
-            participantKumite.setId(new ParticipantKumiteId(participant.getId(), savedKumite.getId()));
-            participantKumite.setParticipant(participant);
-            participantKumite.setKumite(savedKumite);
-            participantKumite.setSide(participantDTO.getSide());
-
-            savedKumite.getParticipantAssociations().add(participantKumite);
+        // Очищаем коллекцию участников
+        if (savedKumite.getParticipantAssociations() != null) {
+            savedKumite.getParticipantAssociations().clear();
         }
 
-        return kumiteRepository.save(savedKumite);
+        // Добавляем новых участников
+        for (ParticipantDTO participantDTO : kumiteDTO.getParticipants()) {
+            if (participantDTO.getParticipantId() != null && participantDTO.getParticipantId() != 0) {
+                Participant participant = participantRepository.findById(participantDTO.getParticipantId())
+                        .orElseThrow(() -> new EntityNotFoundException("Participant not found"));
+
+                ParticipantKumite participantKumite = new ParticipantKumite();
+                participantKumite.setId(new ParticipantKumiteId(participant.getId(), savedKumite.getId()));
+                participantKumite.setParticipant(participant);
+                participantKumite.setKumite(savedKumite);
+                participantKumite.setSide(participantDTO.getSide());
+
+                // Сохраняем связь
+                participantKumiteRepository.save(participantKumite);
+            }
+        }
+
+        // Возвращаем обновленный объект с участниками
+        return kumiteRepository.findByIdWithParticipants(savedKumite.getId())
+                .orElse(savedKumite);
     }
 
     @Transactional(readOnly = true)
@@ -89,6 +104,7 @@ public class KumiteService {
         return kumiteRepository.findAllWithParticipants();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Kumite> getKumiteById(Integer id) {
         return kumiteRepository.findByIdWithParticipants(id);
     }
