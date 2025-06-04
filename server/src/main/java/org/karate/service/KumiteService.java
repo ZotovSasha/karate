@@ -3,8 +3,17 @@ package org.karate.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.karate.dto.KumiteDTO;
 import org.karate.dto.ParticipantDTO;
-import org.karate.entity.*;
-import org.karate.repository.*;
+import org.karate.entity.Kumite;
+import org.karate.entity.Participant;
+import org.karate.entity.ParticipantCategory;
+import org.karate.entity.ParticipantKumite;
+import org.karate.entity.ParticipantKumiteId;
+import org.karate.repository.KumiteRepository;
+import org.karate.repository.ParticipantCategoryRepository;
+import org.karate.repository.ParticipantKumiteRepository;
+import org.karate.repository.ParticipantRepository;
+import org.karate.repository.TatamiRepository;
+import org.karate.repository.JudgingTeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,62 +58,50 @@ public class KumiteService {
         );
         kumite.setWinner(kumiteDTO.getWinner());
 
-        // Сохраняем, чтобы получить ID
+        // Сохраняем Kumite, чтобы получить его ID
         Kumite savedKumite = kumiteRepository.save(kumite);
 
-        // 2) Обрабатываем участников
+        // 2) Обрабатываем каждого участника из DTO
         for (ParticipantDTO partDto : kumiteDTO.getParticipants()) {
-            Participant participantEntity;
-
-            // Если передан существующий participantId
+            // Проверяем, что participantId существует в базе
             if (partDto.getParticipantId() != null && partDto.getParticipantId() != 0) {
-                participantEntity = participantRepository.findById(partDto.getParticipantId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                        "Participant не найден с id = " + partDto.getParticipantId()));
-            }
-            // Иначе — создаём нового
-            else {
-                if (partDto.getFirstName() == null
-                    || partDto.getLastName() == null
-                    || partDto.getPersonalCode() == null
-                    || partDto.getCategoryId() == null) {
-                    throw new IllegalArgumentException(
-                        "Для нового участника необходимо указать firstName, lastName, personalCode и categoryId");
+                Optional<Participant> opt = participantRepository.findById(partDto.getParticipantId());
+                if (opt.isEmpty()) {
+                    // Если участник с таким ID не найден, кидаем исключение и не продолжаем вставку
+                    throw new EntityNotFoundException(
+                        "Participant не найден с id = " + partDto.getParticipantId());
                 }
-
-                Participant newPart = new Participant();
-                newPart.setFirstName(partDto.getFirstName());
-                newPart.setLastName(partDto.getLastName());
-                newPart.setPersonalCode(partDto.getPersonalCode());
-
-                ParticipantCategory category = participantCategoryRepository.findById(partDto.getCategoryId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                        "Категория не найдена с id = " + partDto.getCategoryId()));
-                newPart.setCategory(category);
-
-                participantEntity = participantRepository.save(newPart);
             }
 
-            // 3) Создаём связь ParticipantKumite
-            ParticipantKumiteId pkId = new ParticipantKumiteId(
-                participantEntity.getId(), savedKumite.getId());
-            ParticipantKumite pk = new ParticipantKumite();
-            pk.setId(pkId);
-            pk.setParticipant(participantEntity);
-            pk.setKumite(savedKumite);
-            pk.setSide(partDto.getSide());
+            // После проверки получаем объект Participant
+            Participant participantEntity = partDto.getParticipantId() != null && partDto.getParticipantId() != 0
+                ? participantRepository.findById(partDto.getParticipantId()).get()
+                // Если нужно создавать нового участника «на лету», дополните логику здесь:
+                : null; // или: создайте нового Participant, если DTO содержит данные для нового
 
-            participantKumiteRepository.save(pk);
+            // Создаём связь ParticipantKumite (если participantEntity не null)
+            if (participantEntity != null) {
+                ParticipantKumiteId pkId = new ParticipantKumiteId(
+                    participantEntity.getId(), savedKumite.getId());
+                ParticipantKumite pk = new ParticipantKumite();
+                pk.setId(pkId);
+                pk.setParticipant(participantEntity);
+                pk.setKumite(savedKumite);
+                pk.setSide(partDto.getSide());
+
+                participantKumiteRepository.save(pk);
+            }
         }
 
-        // 4) Возвращаем объект с уже загруженными ассоциациями
-        return kumiteRepository.findByIdWithParticipants(savedKumite.getId())
+        // 3) Возвращаем только что сохранённый Kumite вместе с его участниками
+        return kumiteRepository
+            .findByIdWithParticipants(savedKumite.getId())
             .orElse(savedKumite);
     }
 
     @Transactional
     public Kumite updateKumiteWithParticipants(Integer id, KumiteDTO kumiteDTO) {
-        // 1) Ищем существующий Kumite
+        // 1) Находим существующий Kumite
         Kumite existing = kumiteRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(
                 "Kumite не найден с id = " + id));
@@ -122,66 +119,55 @@ public class KumiteService {
         );
         existing.setWinner(kumiteDTO.getWinner());
 
-        // 3) Удаляем все старые связи с ParticipantKumite
+        // 3) Удаляем все старые связи с участниками
         participantKumiteRepository.deleteByKumiteId(existing.getId());
 
-        // 4) Создаём заново связи, точно так же, как при создании
+        // 4) Снова обрабатываем каждого участника из DTO
         for (ParticipantDTO partDto : kumiteDTO.getParticipants()) {
-            Participant participantEntity;
-
+            // Проверка на существующий participantId
             if (partDto.getParticipantId() != null && partDto.getParticipantId() != 0) {
-                participantEntity = participantRepository.findById(partDto.getParticipantId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                        "Participant не найден с id = " + partDto.getParticipantId()));
-            } else {
-                if (partDto.getFirstName() == null
-                    || partDto.getLastName() == null
-                    || partDto.getPersonalCode() == null
-                    || partDto.getCategoryId() == null) {
-                    throw new IllegalArgumentException(
-                        "Для нового участника необходимо указать firstName, lastName, personalCode и categoryId");
+                Optional<Participant> opt = participantRepository.findById(partDto.getParticipantId());
+                if (opt.isEmpty()) {
+                    throw new EntityNotFoundException(
+                        "Participant не найден с id = " + partDto.getParticipantId());
                 }
-
-                Participant newPart = new Participant();
-                newPart.setFirstName(partDto.getFirstName());
-                newPart.setLastName(partDto.getLastName());
-                newPart.setPersonalCode(partDto.getPersonalCode());
-
-                ParticipantCategory category = participantCategoryRepository.findById(partDto.getCategoryId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                        "Категория не найдена с id = " + partDto.getCategoryId()));
-                newPart.setCategory(category);
-
-                participantEntity = participantRepository.save(newPart);
             }
 
-            ParticipantKumiteId pkId = new ParticipantKumiteId(
-                participantEntity.getId(), existing.getId());
-            ParticipantKumite pk = new ParticipantKumite();
-            pk.setId(pkId);
-            pk.setParticipant(participantEntity);
-            pk.setKumite(existing);
-            pk.setSide(partDto.getSide());
+            Participant participantEntity = partDto.getParticipantId() != null && partDto.getParticipantId() != 0
+                ? participantRepository.findById(partDto.getParticipantId()).get()
+                : null; // или логика создания нового участника
 
-            participantKumiteRepository.save(pk);
+            if (participantEntity != null) {
+                ParticipantKumiteId pkId = new ParticipantKumiteId(
+                    participantEntity.getId(), existing.getId());
+                ParticipantKumite pk = new ParticipantKumite();
+                pk.setId(pkId);
+                pk.setParticipant(participantEntity);
+                pk.setKumite(existing);
+                pk.setSide(partDto.getSide());
+
+                participantKumiteRepository.save(pk);
+            }
         }
 
-        // 5) Сохраняем обновлённый Kumite
+        // 5) Сохраняем обновлённый объект
         kumiteRepository.save(existing);
 
-        return kumiteRepository.findByIdWithParticipants(existing.getId())
+        return kumiteRepository
+            .findByIdWithParticipants(existing.getId())
             .orElse(existing);
     }
 
     @Transactional
     public void deleteKumiteAndParticipants(Integer id) {
         Kumite kumite = kumiteRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Kumite not found с id = " + id));
+            .orElseThrow(() -> new EntityNotFoundException(
+                "Kumite not found с id = " + id));
 
-        // Сначала удаляем все связи с участниками
+        // Сначала удаляем связи с участниками
         participantKumiteRepository.deleteByKumiteId(id);
 
-        // Затем удаляем сам бой
+        // Затем удаляем сам Kumite
         kumiteRepository.delete(kumite);
     }
 
