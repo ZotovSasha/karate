@@ -50,7 +50,18 @@ function App() {
                                 {role === 'guest' ? '   Гость' : '   Организатор'}
                             </div>
                             <button
-                                onClick={() => setRole(role === 'guest' ? 'organizer' : 'guest')}
+                                onClick={() => {
+                                    if (role === 'guest') {
+                                        const password = prompt('Введите пароль организатора:');
+                                        if (password === '1234') {
+                                            setRole('organizer');
+                                        } else if (password !== null) {
+                                            alert('Неверный пароль!');
+                                        }
+                                    } else {
+                                        setRole('guest');
+                                    }
+                                }}
                                 className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-lg font-semibold transition flex items-center text-xs inline-flex"
                             >
                                 Сменить роль
