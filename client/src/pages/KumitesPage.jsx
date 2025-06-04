@@ -78,14 +78,6 @@ const KumitesPage = ({ role }) => {
         }
     };
 
-    // Функция для получения участника по стороне
-    const getParticipantBySide = (kumite, side) => {
-        if (!kumite.participantAssociations) return null;
-
-        const participantKumite = kumite.participantAssociations.find(p => p.side === side);
-        return participantKumite?.participant || null;
-    };
-
     // Функция для получения правильного ID боя
     const getKumiteId = (kumite) => {
         return kumite.id || kumite.idKumite;
@@ -126,16 +118,12 @@ const KumitesPage = ({ role }) => {
                                 <th className="py-3 px-4 text-left">Номер боя</th>
                                 <th className="py-3 px-4 text-left">Татами</th>
                                 <th className="py-3 px-4 text-left">Судейская бригада</th>
-                                <th className="py-3 px-4 text-left">Красный участник</th>
-                                <th className="py-3 px-4 text-left">Белый участник</th>
                                 <th className="py-3 px-4 text-left">Победитель</th>
                                 {role === 'organizer' && <th className="py-3 px-4 text-right">Действия</th>}
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                             {kumites.map((kumite) => {
-                                const redParticipant = getParticipantBySide(kumite, 'RED');
-                                const whiteParticipant = getParticipantBySide(kumite, 'WHITE');
                                 const kumiteId = getKumiteId(kumite);
 
                                 return (
@@ -150,16 +138,6 @@ const KumitesPage = ({ role }) => {
                                             <div className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
                                                 Бригада {kumite.team?.id}
                                             </div>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            {redParticipant ?
-                                                `${redParticipant.lastName} ${redParticipant.firstName}` :
-                                                'N/A'}
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            {whiteParticipant ?
-                                                `${whiteParticipant.lastName} ${whiteParticipant.firstName}` :
-                                                'N/A'}
                                         </td>
                                         <td className="py-4 px-4">
                                                 <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
@@ -183,7 +161,7 @@ const KumitesPage = ({ role }) => {
                                                         className="text-blue-600 hover:text-blue-800"
                                                         title="Редактировать"
                                                     >
-                                                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
                                                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                         </svg>
                                                     </button>
@@ -192,7 +170,7 @@ const KumitesPage = ({ role }) => {
                                                         className="text-red-600 hover:text-red-800"
                                                         title="Удалить"
                                                     >
-                                                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
                                                             <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h12a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                                         </svg>
                                                     </button>

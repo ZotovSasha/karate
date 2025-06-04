@@ -5,7 +5,6 @@ const KumiteForm = ({
                         kumite,
                         tatamis,
                         teams,
-                        participants,
                         onClose,
                         onSave,
                         role
@@ -13,11 +12,7 @@ const KumiteForm = ({
     const [formData, setFormData] = useState({
         tatamiId: tatamis.length > 0 ? tatamis[0].idTatami : '',
         teamId: teams.length > 0 ? teams[0].id : '',
-        winner: 'RED',
-        participants: [
-            { participantId: '', side: 'RED' },
-            { participantId: '', side: 'WHITE' }
-        ]
+        winner: 'RED'
     });
 
     const [errors, setErrors] = useState({});
@@ -25,31 +20,10 @@ const KumiteForm = ({
 
     useEffect(() => {
         if (kumite) {
-            // Преобразуем participantAssociations в формат { participantId, side }
-            const formattedParticipants =
-                Array.isArray(kumite.participantAssociations) &&
-                kumite.participantAssociations.length > 0
-                    ? kumite.participantAssociations.map((p) => ({
-                        participantId: p.participant.id,
-                        side: p.side
-                    }))
-                    : [
-                        { participantId: '', side: 'RED' },
-                        { participantId: '', side: 'WHITE' }
-                    ];
-
-            // Если пришёл только один участник, добавим «пустого» для второй стороны
-            if (formattedParticipants.length === 1) {
-                const existingSide = formattedParticipants[0].side;
-                const missingSide = existingSide === 'RED' ? 'WHITE' : 'RED';
-                formattedParticipants.push({ participantId: '', side: missingSide });
-            }
-
             setFormData({
                 tatamiId: kumite.tatami?.idTatami || '',
                 teamId: kumite.team?.id || '',
-                winner: kumite.winner || 'RED',
-                participants: formattedParticipants
+                winner: kumite.winner || 'RED'
             });
         }
     }, [kumite]);
@@ -62,35 +36,10 @@ const KumiteForm = ({
         }
     };
 
-    const handleParticipantChange = (index, e) => {
-        const { name, value } = e.target;
-        const updated = [...formData.participants];
-        updated[index] = {
-            ...updated[index],
-            [name]: value
-        };
-        setFormData((prev) => ({ ...prev, participants: updated }));
-        if (errors[`participant_${index}`]) {
-            setErrors((prev) => ({ ...prev, [`participant_${index}`]: '' }));
-        }
-    };
-
     const validateForm = () => {
         const newErrors = {};
         if (!formData.tatamiId) newErrors.tatamiId = 'Выберите татами';
         if (!formData.teamId) newErrors.teamId = 'Выберите бригаду';
-
-        formData.participants.forEach((p, idx) => {
-            if (!p.participantId) {
-                newErrors[`participant_${idx}`] = 'Выберите участника';
-            }
-        });
-
-        // Проверяем, чтобы они не совпадали
-        const ids = formData.participants.map((p) => p.participantId);
-        if (ids[0] && ids[1] && ids[0] === ids[1]) {
-            newErrors.participants = 'Участники должны быть разными';
-        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -105,11 +54,7 @@ const KumiteForm = ({
             const payload = {
                 tatamiId: formData.tatamiId,
                 teamId: parseInt(formData.teamId, 10),
-                winner: formData.winner,
-                participants: formData.participants.map((p) => ({
-                    participantId: parseInt(p.participantId, 10),
-                    side: p.side
-                }))
+                winner: formData.winner
             };
 
             const kumiteId = kumite?.id || kumite?.idKumite;
@@ -222,35 +167,6 @@ const KumiteForm = ({
                             <option value="DRAW">Ничья</option>
                         </select>
                     </div>
-
-                    {formData.participants.map((participant, index) => (
-                        <div key={index} className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Участник ({participant.side === 'RED' ? 'Красный' : 'Белый'})
-                            </label>
-                            <select
-                                name="participantId"
-                                value={participant.participantId}
-                                onChange={(e) => handleParticipantChange(index, e)}
-                                className={`w-full px-3 py-2 border rounded-md focus:ring-karate-red focus:border-karate-red ${
-                                    errors[`participant_${index}`] ? 'border-red-500' : 'border-gray-300'
-                                }`}
-                                required
-                            >
-                                <option value="">Выбрать участника</option>
-                                {participants.map((p) => (
-                                    <option key={p.id} value={p.id}>
-                                        {p.lastName} {p.firstName}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors[`participant_${index}`] && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {errors[`participant_${index}`]}
-                                </p>
-                            )}
-                        </div>
-                    ))}
 
                     {errors.participants && (
                         <div className="mb-4 text-red-500 text-sm">{errors.participants}</div>
