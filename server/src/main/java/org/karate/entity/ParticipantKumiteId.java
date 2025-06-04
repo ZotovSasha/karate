@@ -1,5 +1,6 @@
 package org.karate.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,8 +12,19 @@ import java.util.Objects;
 @Getter
 @Embeddable
 public class ParticipantKumiteId implements Serializable {
+    @Column(name = "participant_id")
     private Integer participantId;
+
+    @Column(name = "kumite_id")
     private Integer kumiteId;
+
+    public ParticipantKumiteId() {
+    }
+
+    public ParticipantKumiteId(Integer participantId, Integer kumiteId) {
+        this.participantId = participantId;
+        this.kumiteId = kumiteId;
+    }
 
     @Override
     public boolean equals(Object o) {

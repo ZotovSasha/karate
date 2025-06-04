@@ -74,7 +74,7 @@ const JudgesPage = ({ role }) => {
                             setSelectedJudge(null);
                             setShowForm(true);
                         }}
-                        className="btn-add bg-karate-red hover:bg-karate-red:700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                        className="btn btn-add bg-karate-gray hover:bg-karate-red:700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     >
                         <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -90,14 +90,14 @@ const JudgesPage = ({ role }) => {
                 </label>
                 <select
                     onChange={(e) => handleFilter(e.target.value || null)}
-                    className="mt-1 block w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-karate-red focus:border-karate-red"
+                    className="mt-1 block w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-karate-red focus:border-karate-red text-sm"
                 >
                     <option value="">Все бригады</option>
                     {teams.map((team) => (
                         <option key={team.id} value={team.id}>
                             Бригада {team.id}
                         </option>
-                    ))}
+                    )) || <option value="">Нет бригад</option>}
                 </select>
             </div>
 
@@ -113,19 +113,18 @@ const JudgesPage = ({ role }) => {
                             <tr>
                                 <th className="py-3 px-4 text-left">Фамилия Имя</th>
                                 <th className="py-3 px-4 text-left">Судейская бригада</th>
-                                {role === 'organizer' && <th className="py-3 px-4 text-right">Actions</th>}
+                                {role === 'organizer' && <th className="py-3 px-4 text-right">Действия</th>}
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                             {filteredJudges.map((judge) => (
                                 <tr key={judge.idJudge} className="hover:bg-gray-50">
-                                    <td className="py-4 px-4">
-                                        <div className="font-medium text-gray-900">
-                                            {judge.lastName} {judge.firstName}
-                                        </div>
+                                    <td className="py-4 px-4 text-gray-900 font-medium whitespace-nowrap">
+                                        {judge.lastName}
+                                        <span className="text-gray-600"> {judge.firstName}</span>
                                     </td>
                                     <td className="py-4 px-4">
-                                        <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+                                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                                             Бригада {judge.team?.id}
                                         </span>
                                     </td>
@@ -136,24 +135,26 @@ const JudgesPage = ({ role }) => {
                                                     setSelectedJudge(judge);
                                                     setShowForm(true);
                                                 }}
-                                                className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1"
+                                                title="Редактировать"
                                             >
-                                                <svg className="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M8 14.9217L12 18.9609L16 14.9217V3H8V4.9217ZM12 15.9609V22H2V3H14V15.9609ZM12 9V17H2V5H14V9Z" fill="currentColor" />
+                                                <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                 </svg>
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(judge.idJudge)}
-                                                className="inline-flex items-center gap-1 ml-3 text-red-600 hover:text-red-800"
+                                                className="text-red-600 hover:text-red-800 inline-flex items-center gap-1 ml-2"
+                                                title="Удалить"
                                             >
-                                                <svg className="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M7 4.93011L5.66302 6.00471C4.45391 7.03728 1.68505 8.54968 1 10V14C1.68505 16.0503 4.45391 17.5627 5.66302 18.5953L7 19.67L11 16.34L15 19.67L16.3364 18.5953C17.5455 17.5627 20.3144 16.0503 21 14C20.3144 11.9497 17.5455 10.4373 16.3364 9.40466L15 8.32908L11 12.3701V4.93011Z" fill="currentColor" />
+                                                <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h12a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
                                             </button>
                                         </td>
                                     )}
                                 </tr>
-                            ))}
+                            )) || <tr><td colSpan={role === 'organizer' ? 3 : 2} className="py-4 text-center text-gray-500">Нет судей</td></tr>}
                             </tbody>
                         </table>
                     </div>

@@ -9,6 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface ParticipantKumiteRepository extends JpaRepository<ParticipantKumite, ParticipantKumiteId> {
     @Modifying
+    @Query("DELETE FROM ParticipantKumite pk WHERE pk.participant.id = :participantId")
+    void deleteByParticipantId(@Param("participantId") Integer participantId);
+    @Modifying
     @Query("DELETE FROM ParticipantKumite p WHERE p.id.kumiteId = :kumiteId")
     void deleteByKumiteId(@Param("kumiteId") Integer kumiteId);
 }

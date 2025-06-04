@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
+const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, role }) => {
     const [formData, setFormData] = useState({
-        tatamiId: tatamis.length > 0 ? tatamis[0].id : '',
+        tatamiId: tatamis.length > 0 ? tatamis[0].idTatami : '',
         teamId: teams.length > 0 ? teams[0].id : '',
-        winner: 'RED'
+        winner: 'RED',
+        participants: [
+            { participantId: '', side: 'RED' },
+            { participantId: '', side: 'WHITE' }
+        ]
     });
 
     useEffect(() => {
         if (kumite) {
+            // Правильно обрабатываем участников
+            const formattedParticipants = kumite.participants?.map(p => ({
+                participantId: p.participant.id,
+                side: p.side
+            })) || [
+                { participantId: '', side: 'RED' },
+                { participantId: '', side: 'WHITE' }
+            ];
+
             setFormData({
-                tatamiId: kumite.tatami?.id || '',
+                tatamiId: kumite.tatami?.idTatami || '',
                 teamId: kumite.team?.id || '',
-                winner: kumite.winner || 'RED'
+                winner: kumite.winner || 'RED',
+                participants: formattedParticipants
             });
         }
     }, [kumite]);
@@ -23,13 +37,31 @@ const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleParticipantChange = (index, e) => {
+        const { name, value } = e.target;
+        const updatedParticipants = [...formData.participants];
+        updatedParticipants[index] = {
+            ...updatedParticipants[index],
+            [name]: value
+        };
+
+        setFormData(prev => ({
+            ...prev,
+            participants: updatedParticipants
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const data = {
-                tatami: { id: parseInt(formData.tatamiId) },
-                team: { id: parseInt(formData.teamId) },
-                winner: formData.winner
+                tatamiId: formData.tatamiId,
+                teamId: parseInt(formData.teamId),
+                winner: formData.winner,
+                participants: formData.participants.map(p => ({
+                    participantId: parseInt(p.participantId),
+                    side: p.side
+                }))
             };
 
             if (kumite) {
@@ -49,11 +81,8 @@ const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="modal card bg-white rounded-lg overflow-hidden w-full max-w-md">
+            <div className="modal card bg-white rounded-lg overflow-hidden w-full max-w-lg">
                 <div className="bg-red-700 px-6 py-4 text-white flex justify-between items-center">
-                    <svg className="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 22a10 10 0 110-20 10 10 0 010 20zM9.5 17a4.5 4.5 0 004.5-4.5V8a4.5 4.5 0 00-4.5-4.5H4a4.5 4.5 0 00-4.5 4.5v4a4.5 4.5 0 004.5 4.5h5.5v6.5A1.5 1.5 0 019 22h0z" fill="currentColor" />
-                    </svg>
                     <h3 className="text-lg font-bold">
                         {kumite ? 'Изменить бой' : 'Добавить новый бой'}
                     </h3>
@@ -76,8 +105,8 @@ const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
                         >
                             <option value="">Выбрать татами</option>
                             {tatamis.map(tatami => (
-                                <option key={tatami.id} value={tatami.id}>
-                                    Татами {tatami.id}
+                                <option key={tatami.idTatami} value={tatami.idTatami}>
+                                    Татами {tatami.idTatami}
                                 </option>
                             ))}
                         </select>
@@ -126,6 +155,28 @@ const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
                         </select>
                     </div>
 
+                    {formData.participants.map((participant, index) => (
+                        <div key={index} className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Участник ({participant.side === 'RED' ? 'Красный' : 'Белый'})
+                            </label>
+                            <select
+                                name="participantId"
+                                value={participant.participantId}
+                                onChange={(e) => handleParticipantChange(index, e)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-karate-red focus:border-karate-red"
+                                required
+                            >
+                                <option value="">Выбрать участника</option>
+                                {participants.map(p => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.lastName} {p.firstName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    ))}
+
                     <div className="flex justify-end space-x-3 pt-2">
                         <button
                             type="button"
@@ -136,7 +187,7 @@ const KumiteForm = ({ kumite, tatamis, teams, onClose, onSave, role }) => {
                         </button>
                         <button
                             type="submit"
-                            className="btn-primary px-4 py-2 text-white hover:bg-red-700"
+                            className="btn-primary px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md"
                         >
                             Сохранить
                         </button>

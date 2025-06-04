@@ -3,6 +3,7 @@ package org.karate.controller;
 import org.karate.entity.Participant;
 import org.karate.entity.ParticipantCategory;
 import org.karate.repository.ParticipantCategoryRepository;
+import org.karate.repository.ParticipantKumiteRepository;
 import org.karate.repository.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ public class ParticipantController {
     @Autowired
     private ParticipantCategoryRepository participantCategoryRepository;
 
+    @Autowired
+    private ParticipantKumiteRepository participantKumiteRepository;
+
     @GetMapping
     public List<Participant> getAllParticipants() {
         return participantRepository.findAll();
@@ -27,7 +31,8 @@ public class ParticipantController {
     public List<Participant> getParticipantsByCategory(
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) String search) {
-        return participantRepository.findWithFilters(categoryId, search);
+        String normalizedSearch = search == null || search.isBlank() ? null : search.toLowerCase();
+        return participantRepository.findWithFilters(categoryId, normalizedSearch);
     }
 
     @GetMapping("/categories")
@@ -47,8 +52,8 @@ public class ParticipantController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategoryWithParticipants(@PathVariable Integer id) {
-        participantCategoryRepository.deleteParticipantsByCategoryId(id);
-        participantCategoryRepository.deleteById(id);
+    public void deleteParticipant(@PathVariable Integer id) {
+        participantKumiteRepository.deleteByParticipantId(id);
+        participantRepository.deleteById(id);
     }
 }

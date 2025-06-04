@@ -40,10 +40,11 @@ const ParticipantsPage = ({ role }) => {
 
     const handleFilter = async (categoryId, searchTerm) => {
         try {
+            const normalizedSearch = searchTerm ? searchTerm.toLowerCase() : null;
             const response = await axios.get('/api/participants/filter', {
                 params: {
                     categoryId: categoryId || null,
-                    search: searchTerm || null
+                    search: normalizedSearch || null
                 },
                 headers: { 'X-Role': role }
             });
@@ -78,9 +79,9 @@ const ParticipantsPage = ({ role }) => {
                             setSelectedParticipant(null);
                             setShowForm(true);
                         }}
-                        className="btn btn-add bg-karate-red hover:bg-karate-red:700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                        className="btn btn-add bg-karate-gray hover:bg-red-800  px-4 py-2 rounded-lg flex items-center gap-2"
                     >
-                        <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="icon h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                         Добавить нового участника
@@ -123,7 +124,7 @@ const ParticipantsPage = ({ role }) => {
                                                 setSelectedParticipant(participant);
                                                 setShowForm(true);
                                             }}
-                                            className="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                                            className="hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
                                         >
                                             <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />

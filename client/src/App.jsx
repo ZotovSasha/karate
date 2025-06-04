@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import JudgesPage from './pages/JudgesPage';
@@ -32,16 +31,23 @@ function App() {
             <div className="min-h-screen bg-light-gray">
                 <header className="bg-gradient-to-r from-karate-red to-karate-deeper-red text-white shadow-lg">
                     <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                        {/* Logo и название */}
-                        <div className="flex items-center">
-                            <div className="bg-white rounded-full p-1 mr-2">
-                            </div>
-                            <h1 className="text-xl font-bold">Соревнования по карате</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl font-bold text-white">Соревнования по карате</h1>
                         </div>
 
-                        <div className="flex items-center space-x-3">
-                            <div className="bg-white text-karate-red px-3 py-1 rounded-full font-semibold flex items-center text-xs">
-                                {role === 'guest' ? 'Гость' : 'Организатор'}
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white text-karate-red px-3 py-1 rounded-full font-semibold text-xs flex items-center gap-1">
+                                {role === 'guest' ? (
+                                    <svg className="icon h-4 w-4 text-karate-red" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                    </svg>
+                                ) : (
+                                    <svg className="icon h-4 w-4 text-karate-red" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                    </svg>
+                                )}
+                                {role === 'guest' ? '   Гость' : '   Организатор'}
                             </div>
                             <button
                                 onClick={() => setRole(role === 'guest' ? 'organizer' : 'guest')}
@@ -56,7 +62,7 @@ function App() {
                                 <svg xmlns="http://www.w3.org/2000/svg" className="icon h-5 w-5 mr-1 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                Участники соревнований
+                                Участники
                             </NavLink>
                             <NavLink to="/judges">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="icon h-5 w-5 mr-1 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,14 +88,13 @@ function App() {
                         <Route path="/kumites" element={<KumitesPage role={role} />} />
                     </Routes>
                 </main>
-
-                {/* Footer */}
-                <footer className="bg-gray-900 text-white py-4 mt-8">
-                    <div className="container mx-auto px-4 text-center">
-                        <p className="text-sm">© 2025 Система Соревнований по Карате</p>
-                    </div>
-                </footer>
             </div>
+            {/* Footer */}
+            <footer className="bg-gray-900 text-white py-4 mt-8">
+                <div className="container mx-auto px-4 text-center">
+                    <p className="text-sm">© 2025 Система Соревнований по Карате</p>
+                </div>
+            </footer>
         </Router>
     );
 }
