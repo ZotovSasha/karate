@@ -30,16 +30,14 @@ const KumitesPage = ({ role }) => {
     };
 
     const fetchKumites = async () => {
-        setLoading(true);
         try {
-            // Обязательно передаём full=true, чтобы получить participantAssociations
             const response = await axios.get('/api/kumites?full=true', {
                 headers: { 'X-Role': role }
             });
             setKumites(response.data);
+            setLoading(false);
         } catch (error) {
             console.error('Error fetching kumites:', error);
-        } finally {
             setLoading(false);
         }
     };
@@ -80,28 +78,25 @@ const KumitesPage = ({ role }) => {
         }
     };
 
-    /**
-     * Helper: находит в participantAssociations запись с нужным side ("RED" или "WHITE").
-     * Если не нашлось — возвращает null.
-     */
+    // Функция для получения участника по стороне
     const getParticipantBySide = (kumite, side) => {
-        if (!Array.isArray(kumite.participantAssociations)) return null;
-        const assoc = kumite.participantAssociations.find((p) => p.side === side);
-        return assoc ? assoc.participant : null;
+        if (!kumite.participantAssociations) return null;
+
+        const participantKumite = kumite.participantAssociations.find(p => p.side === side);
+        return participantKumite?.participant || null;
     };
 
-    /**
-     * В некоторых моделях у нас в JSON приходят поля id или idKumite,
-     * так что убеждаемся, что ключ уникален.
-     */
+    // Функция для получения правильного ID боя
     const getKumiteId = (kumite) => {
         return kumite.id || kumite.idKumite;
     };
 
     return (
-        <div className="kumites-page p-6">
+        <div className="kumites-page">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Бои</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                    Бои
+                </h2>
                 {role === 'organizer' && (
                     <button
                         onClick={() => {
@@ -110,12 +105,8 @@ const KumitesPage = ({ role }) => {
                         }}
                         className="btn btn-add bg-karate-gray hover:bg-karate-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     >
-                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path
-                                fillRule="evenodd"
-                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z"
-                                clipRule="evenodd"
-                            />
+                        <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                         </svg>
                         Добавить новый бой
                     </button>
@@ -123,124 +114,102 @@ const KumitesPage = ({ role }) => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center items-center h-64">
+                <div className="flex justify-center items-center h-96">
                     <div className="loading-spinner border-4 border-karate-red rounded-full w-16 h-16 animate-spin"></div>
                 </div>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
-                        <thead>
-                        <tr className="bg-gray-800 text-white">
-                            <th className="py-3 px-4 text-left">Номер боя</th>
-                            <th className="py-3 px-4 text-left">Татами</th>
-                            <th className="py-3 px-4 text-left">Судейская бригада</th>
-                            <th className="py-3 px-4 text-left">Красный участник</th>
-                            <th className="py-3 px-4 text-left">Белый участник</th>
-                            <th className="py-3 px-4 text-left">Победитель</th>
-                            {role === 'organizer' && (
-                                <th className="py-3 px-4 text-right">Действия</th>
-                            )}
-                        </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                        {kumites.map((kumite) => {
-                            const kumiteId = getKumiteId(kumite);
-                            const redParticipant = getParticipantBySide(kumite, 'RED');
-                            const whiteParticipant = getParticipantBySide(kumite, 'WHITE');
+                <div className="mt-4">
+                    <div className="card mb-4 rounded-lg shadow-md overflow-hidden">
+                        <table className="min-w-full">
+                            <thead className="bg-gray-800 text-white">
+                            <tr>
+                                <th className="py-3 px-4 text-left">Номер боя</th>
+                                <th className="py-3 px-4 text-left">Татами</th>
+                                <th className="py-3 px-4 text-left">Судейская бригада</th>
+                                <th className="py-3 px-4 text-left">Красный участник</th>
+                                <th className="py-3 px-4 text-left">Белый участник</th>
+                                <th className="py-3 px-4 text-left">Победитель</th>
+                                {role === 'organizer' && <th className="py-3 px-4 text-right">Действия</th>}
+                            </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                            {kumites.map((kumite) => {
+                                const redParticipant = getParticipantBySide(kumite, 'RED');
+                                const whiteParticipant = getParticipantBySide(kumite, 'WHITE');
+                                const kumiteId = getKumiteId(kumite);
 
-                            return (
-                                <tr key={kumiteId} className="hover:bg-gray-50">
-                                    <td className="py-4 px-4 font-medium">#{kumiteId}</td>
-                                    <td className="py-4 px-4">
-                                        {kumite.tatami ? `Татами ${kumite.tatami.idTatami}` : 'N/A'}
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        {kumite.team ? (
-                                            <div className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
-                                                Бригада {kumite.team.id}
-                                            </div>
-                                        ) : (
-                                            'N/A'
-                                        )}
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        {redParticipant
-                                            ? `${redParticipant.lastName} ${redParticipant.firstName}`
-                                            : '—'}
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        {whiteParticipant
-                                            ? `${whiteParticipant.lastName} ${whiteParticipant.firstName}`
-                                            : '—'}
-                                    </td>
-                                    <td className="py-4 px-4">
-                      <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                              kumite.winner === 'RED'
-                                  ? 'bg-red-100 text-red-800'
-                                  : kumite.winner === 'WHITE'
-                                      ? 'bg-gray-100 text-gray-800'
-                                      : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                      >
-                        {kumite.winner === 'RED'
-                            ? 'Красный'
-                            : kumite.winner === 'WHITE'
-                                ? 'Белый'
-                                : 'Ничья'}
-                      </span>
-                                    </td>
-                                    {role === 'organizer' && (
+                                return (
+                                    <tr key={kumiteId} className="hover:bg-gray-50">
+                                        <td className="py-4 px-4 font-medium">#{kumiteId}</td>
                                         <td className="py-4 px-4">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedKumite(kumite);
-                                                        setShowForm(true);
-                                                    }}
-                                                    className="text-blue-600 hover:text-blue-800"
-                                                    title="Редактировать"
-                                                >
-                                                    <svg
-                                                        className="w-5 h-5"
-                                                        viewBox="0 0 20 20"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(kumiteId)}
-                                                    className="text-red-600 hover:text-red-800"
-                                                    title="Удалить"
-                                                >
-                                                    <svg
-                                                        className="w-5 h-5"
-                                                        viewBox="0 0 20 20"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path
-                                                            fillRule="evenodd"
-                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h12a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                            clipRule="evenodd"
-                                                        />
-                                                    </svg>
-                                                </button>
+                                            <div className="text-gray-700">
+                                                Татами {kumite.tatami?.idTatami || 'N/A'}
                                             </div>
                                         </td>
-                                    )}
-                                </tr>
-                            );
-                        })}
+                                        <td className="py-4 px-4">
+                                            <div className="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
+                                                Бригада {kumite.team?.id}
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            {redParticipant ?
+                                                `${redParticipant.lastName} ${redParticipant.firstName}` :
+                                                'N/A'}
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            {whiteParticipant ?
+                                                `${whiteParticipant.lastName} ${whiteParticipant.firstName}` :
+                                                'N/A'}
+                                        </td>
+                                        <td className="py-4 px-4">
+                                                <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                                    kumite.winner === 'RED' ? 'bg-red-100 text-red-800' :
+                                                        kumite.winner === 'WHITE' ? 'bg-gray-100 text-gray-800' :
+                                                            'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                    {kumite.winner === 'RED' ? 'Красный' :
+                                                        kumite.winner === 'WHITE' ? 'Белый' :
+                                                            'Ничья'}
+                                                </span>
+                                        </td>
+                                        {role === 'organizer' && (
+                                            <td className="py-4 px-4">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedKumite(kumite);
+                                                            setShowForm(true);
+                                                        }}
+                                                        className="text-blue-600 hover:text-blue-800"
+                                                        title="Редактировать"
+                                                    >
+                                                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(kumiteId)}
+                                                        className="text-red-600 hover:text-red-800"
+                                                        title="Удалить"
+                                                    >
+                                                        <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h12a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
+                                    </tr>
+                                );
+                            })}
+                            </tbody>
+                        </table>
                         {kumites.length === 0 && (
-                            <tr>
-                                <td colSpan={ role === 'organizer' ? 7 : 6 } className="py-8 text-center text-gray-500">
-                                    Нет доступных боев
-                                </td>
-                            </tr>
+                            <div className="p-8 text-center text-gray-500">
+                                Нет доступных боев
+                            </div>
                         )}
-                        </tbody>
-                    </table>
+                    </div>
                 </div>
             )}
 

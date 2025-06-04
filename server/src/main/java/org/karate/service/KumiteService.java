@@ -65,6 +65,7 @@ public class KumiteService {
 
         kumite.setWinner(kumiteDTO.getWinner());
 
+        // Сохраняем Kumite, чтобы получить его ID
         Kumite savedKumite = kumiteRepository.save(kumite);
 
         // 2. Обрабатываем каждого участника
@@ -124,10 +125,6 @@ public class KumiteService {
                 .orElse(savedKumite);
     }
 
-    /**
-     * Обновляет существующий бой (Kumite) и его участников.
-     * Сначала очищает все старые связи, затем создаёт новые по тем же правилам, что в createKumiteWithParticipants.
-     */
     @Transactional
     public Kumite updateKumiteWithParticipants(Integer id, KumiteDTO kumiteDTO) {
         // 1. Находим существующий Kumite
@@ -205,30 +202,24 @@ public class KumiteService {
                 .orElse(existing);
     }
 
-    /**
-     * Удаляет бой (Kumite) и все связанные с ним записи в ParticipantKumite.
-     */
     @Transactional
     public void deleteKumiteAndParticipants(Integer id) {
         Kumite kumite = kumiteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Kumite не найден с id = " + id));
 
+        // Сначала удаляем связи с участниками
         participantKumiteRepository.deleteByKumiteId(id);
+
+        // Затем удаляем сам Kumite
         kumiteRepository.delete(kumite);
     }
 
-    /**
-     * Возвращает список всех боёв вместе с участниками.
-     */
     @Transactional(readOnly = true)
     public List<Kumite> getAllKumitesWithParticipants() {
         return kumiteRepository.findAllWithParticipants();
     }
 
-    /**
-     * Возвращает один бой по ID вместе с участниками.
-     */
     @Transactional(readOnly = true)
     public Optional<Kumite> getKumiteById(Integer id) {
         return kumiteRepository.findByIdWithParticipants(id);
