@@ -60,6 +60,7 @@ public class KumiteService {
 
         kumite.setWinner(kumiteDTO.getWinner());
 
+        // Сохраняем Kumite, чтобы получить его ID
         Kumite savedKumite = kumiteRepository.save(kumite);
 
         // 2. Обрабатываем каждого участника
@@ -202,7 +203,10 @@ public class KumiteService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Kumite не найден с id = " + id));
 
+        // Сначала удаляем связи с участниками
         participantKumiteRepository.deleteByKumiteId(id);
+
+        // Затем удаляем сам Kumite
         kumiteRepository.delete(kumite);
     }
 

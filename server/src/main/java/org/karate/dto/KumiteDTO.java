@@ -9,8 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class KumiteDTO {
-    // Меняем тип с String на Integer, чтобы сразу подойти под findById(Integer)
-    private Integer tatamiId;
+    private String tatamiId;
 
     private Integer teamId;
     private Side winner;
