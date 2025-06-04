@@ -9,4 +9,8 @@ import org.karate.entity.Side;
 public class ParticipantDTO {
     private Integer participantId;
     private Side side;
+    private String firstName;
+    private String lastName;
+    private String personalCode;
+    private Integer categoryId;
 }
