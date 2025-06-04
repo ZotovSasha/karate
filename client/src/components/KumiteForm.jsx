@@ -14,8 +14,7 @@ const KumiteForm = ({ kumite, tatamis, teams, participants, onClose, onSave, rol
 
     useEffect(() => {
         if (kumite) {
-            // Правильно обрабатываем участников
-            const formattedParticipants = kumite.participants?.map(p => ({
+            const formattedParticipants = kumite.participantAssociations?.map(p => ({
                 participantId: p.participant.id,
                 side: p.side
             })) || [

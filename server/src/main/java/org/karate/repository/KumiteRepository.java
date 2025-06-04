@@ -24,6 +24,6 @@ public interface KumiteRepository extends JpaRepository<Kumite, Integer> {
             "LEFT JOIN FETCH pa.participant p " +
             "LEFT JOIN FETCH k.tatami " +
             "LEFT JOIN FETCH k.team " +
-            "WHERE k.idKumite = :id")
+            "WHERE k.id = :id")
     Optional<Kumite> findByIdWithParticipants(@Param("id") Integer id);
 }

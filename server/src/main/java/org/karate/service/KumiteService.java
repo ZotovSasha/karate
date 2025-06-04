@@ -34,12 +34,9 @@ public class KumiteService {
 
     @Transactional
     public void deleteKumiteAndParticipants(Integer id) {
-        Optional<Kumite> kumite = kumiteRepository.findById(id);
-        if (!kumite.isPresent()) {
-            throw new EntityNotFoundException();
-        }
-        participantKumiteRepository.deleteByKumiteId(id);
-        kumiteRepository.deleteById(id);
+        Kumite kumite = kumiteRepository.findById(id)
+                .orElseThrow(EntityNotFoundException::new);
+        kumiteRepository.delete(kumite);
     }
 
     @Transactional
@@ -65,23 +62,26 @@ public class KumiteService {
 
         kumite.setWinner(kumiteDTO.getWinner());
 
+        // Сохраняем кумите, чтобы получить ID (для новых записей)
+        Kumite savedKumite = kumiteRepository.save(kumite);
+
         // Удаляем старых участников
-        kumite.getParticipantAssociations().clear();
+        savedKumite.getParticipantAssociations().clear();
 
         for (ParticipantDTO participantDTO : kumiteDTO.getParticipants()) {
             Participant participant = participantRepository.findById(participantDTO.getParticipantId())
                     .orElseThrow(() -> new EntityNotFoundException("Participant not found"));
 
             ParticipantKumite participantKumite = new ParticipantKumite();
-            participantKumite.setId(new ParticipantKumiteId(participant.getId(), kumite.getIdKumite()));
+            participantKumite.setId(new ParticipantKumiteId(participant.getId(), savedKumite.getId()));
             participantKumite.setParticipant(participant);
-            participantKumite.setKumite(kumite); // устанавливаем связь
+            participantKumite.setKumite(savedKumite);
             participantKumite.setSide(participantDTO.getSide());
 
-            kumite.getParticipantAssociations().add(participantKumite);
+            savedKumite.getParticipantAssociations().add(participantKumite);
         }
 
-        return kumiteRepository.save(kumite);
+        return kumiteRepository.save(savedKumite);
     }
 
     @Transactional(readOnly = true)

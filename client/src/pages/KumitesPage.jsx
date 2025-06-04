@@ -78,16 +78,11 @@ const KumitesPage = ({ role }) => {
 
     // Функция для получения участника по стороне
     const getParticipantBySide = (kumite, side) => {
-        if (!kumite.participants) return null;
+        if (!kumite.participantAssociations) return null;
 
-        const participantKumite = kumite.participants.find(p => p.side === side);
+        const participantKumite = kumite.participantAssociations.find(p => p.side === side);
 
-        // Проверяем наличие участника
-        if (!participantKumite || !participantKumite.participant) {
-            return null;
-        }
-
-        return participantKumite.participant;
+        return participantKumite?.participant || null;
     };
 
     return (
@@ -138,7 +133,7 @@ const KumitesPage = ({ role }) => {
 
                                 return (
                                     <tr key={kumite.idKumite} className="hover:bg-gray-50">
-                                        <td className="py-4 px-4 font-medium"># {kumite.idKumite}</td>
+                                        <td className="py-4 px-4 font-medium"># {kumite.id}</td> {/* Изменено с idKumite на id */}
                                         <td className="py-4 px-4">
                                             <div className="text-gray-700">
                                                 Татами {kumite.tatami?.idTatami || 'N/A'}
@@ -185,7 +180,7 @@ const KumitesPage = ({ role }) => {
                                                         </svg>
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(kumite.idKumite)}
+                                                        onClick={() => handleDelete(kumite.id)}
                                                         className="text-red-600 hover:text-red-800"
                                                     >
                                                         <svg className="icon" viewBox="0 0 20 20" fill="currentColor">
