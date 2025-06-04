@@ -1,5 +1,6 @@
 package org.karate.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 public class Kumite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_kumite") // Явное указание имени колонки
+    @Column(name = "id_kumite")
     private Integer id;
 
     @ManyToOne
@@ -29,5 +30,6 @@ public class Kumite {
     private Side winner;
 
     @OneToMany(mappedBy = "kumite", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ParticipantKumite> participantAssociations = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package org.karate.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +23,8 @@ public class ParticipantKumite {
 
     @ManyToOne
     @MapsId("kumiteId")
-    @JoinColumn(name = "kumite_id", referencedColumnName = "id_kumite") // Явно указываем ссылку
+    @JoinColumn(name = "kumite_id", referencedColumnName = "id_kumite")
+    @JsonBackReference
     private Kumite kumite;
 
     @Enumerated(EnumType.STRING)
