@@ -44,11 +44,6 @@ public class KumiteService {
     @Autowired
     private ParticipantKumiteRepository participantKumiteRepository;
 
-    /**
-     * Создаёт новый бой (Kumite) вместе с участниками.
-     * Если в ParticipantDTO передан participantId (не null и не 0), ищем существующего Participant.
-     * Если participantId отсутствует (null или 0), создаём нового Participant на основе полей DTO.
-     */
     @Transactional
     public Kumite createKumiteWithParticipants(KumiteDTO kumiteDTO) {
         // 1. Создаём и сохраняем объект Kumite, чтобы получить его ID
@@ -124,10 +119,6 @@ public class KumiteService {
                 .orElse(savedKumite);
     }
 
-    /**
-     * Обновляет существующий бой (Kumite) и его участников.
-     * Сначала очищает все старые связи, затем создаёт новые по тем же правилам, что в createKumiteWithParticipants.
-     */
     @Transactional
     public Kumite updateKumiteWithParticipants(Integer id, KumiteDTO kumiteDTO) {
         // 1. Находим существующий Kumite
@@ -205,9 +196,6 @@ public class KumiteService {
                 .orElse(existing);
     }
 
-    /**
-     * Удаляет бой (Kumite) и все связанные с ним записи в ParticipantKumite.
-     */
     @Transactional
     public void deleteKumiteAndParticipants(Integer id) {
         Kumite kumite = kumiteRepository.findById(id)
@@ -218,17 +206,11 @@ public class KumiteService {
         kumiteRepository.delete(kumite);
     }
 
-    /**
-     * Возвращает список всех боёв вместе с участниками.
-     */
     @Transactional(readOnly = true)
     public List<Kumite> getAllKumitesWithParticipants() {
         return kumiteRepository.findAllWithParticipants();
     }
 
-    /**
-     * Возвращает один бой по ID вместе с участниками.
-     */
     @Transactional(readOnly = true)
     public Optional<Kumite> getKumiteById(Integer id) {
         return kumiteRepository.findByIdWithParticipants(id);
